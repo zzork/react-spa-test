@@ -1,0 +1,12 @@
+{
+  "$schema": "https://aka.ms/azure/static-web-apps-cli/schema",
+  "configurations": {
+    "react-spa-test": {
+      "appLocation": ".",
+      "outputLocation": "dist",
+      "appBuildCommand": "npm run build:vite",
+      "run": "npm run dev",
+      "appDevserverUrl": "http://localhost:5173/"
+    }
+  }
+}

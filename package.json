@@ -4,11 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "swa start",
+    "build": "swa build",
+    "build:vite": "tsc && vite build",
+    "deploy": "swa deploy",
     "dev": "vite",
-    "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@azure/static-web-apps-cli": "^1.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
