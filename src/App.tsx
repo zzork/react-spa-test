@@ -1,35 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import {
+  QueryClient,
+  QueryClientProvider,
+  QueryKey,
+} from '@tanstack/react-query';
+import { Table } from './components';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+const defaultQueryFn = async ({ queryKey }: { queryKey: QueryKey }) => {
+  const response = await fetch(queryKey[0] as string);
+  if (!response.ok)
+    throw new Error(`Network error: ${response.status} ${response.statusText}`);
+  return response.json();
+};
 
-  return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      <p>Did this deploy? Survey says yes</p>
-    </div>
-  )
-}
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { queryFn: defaultQueryFn } },
+});
 
-export default App
+const Providers = ({ children }: { children: React.ReactNode }) => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+);
+
+const App = () => (
+  <Providers>
+    <Table />
+  </Providers>
+);
+
+export default App;
