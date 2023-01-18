@@ -119,7 +119,7 @@ const columns = [
 
 export const Table = () => {
   const { data } = useQuery<User[]>({
-    queryKey: ['https://jsonplaceholder.typicode.com/users'],
+    queryKey: ['/api/getUsers'],
   });
 
   const table = useReactTable({
