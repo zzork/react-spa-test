@@ -5,32 +5,9 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useQuery } from '@tanstack/react-query';
+import { useUsers } from './useUsers';
+import { User } from './User';
 import classNames from './Table.module.css';
-
-type User = {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-  address: {
-    street: string;
-    suite: string;
-    city: string;
-    zipcode: string;
-    geo: {
-      lat: string;
-      lng: string;
-    };
-  };
-  phone: string;
-  website: string;
-  company: {
-    name: string;
-    catchPhrase: string;
-    bs: string;
-  };
-};
 
 const columnHelper = createColumnHelper<User>();
 
@@ -118,30 +95,20 @@ const columns = [
 ];
 
 export const Table = () => {
-  const { data } = useQuery<User[]>({
-    queryKey: ['/api/getUsers'],
-  });
+  const { data } = useUsers();
 
-  const table = useReactTable({
+  const tableData = useReactTable({
     data: data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    // state: {
-    //   sorting: [
-    //     {
-    //       id: 'firstName',
-    //       desc: true,
-    //     },
-    //   ],
-    // },
   });
 
   return (
     <div>
       <table className={classNames.table}>
         <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
+          {tableData.getHeaderGroups().map((headerGroup) => (
             <tr className={classNames.headerRow} key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <th
@@ -164,7 +131,7 @@ export const Table = () => {
           ))}
         </thead>
         <tbody className={classNames.tableBody}>
-          {table.getRowModel().rows.map((row) => (
+          {tableData.getRowModel().rows.map((row) => (
             <tr className={classNames.bodyRow} key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <td key={cell.id}>

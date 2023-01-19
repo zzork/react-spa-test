@@ -3,13 +3,12 @@
   "configurations": {
     "react-spa-test": {
       "appLocation": ".",
-      "apiLocation": "/api",
+      "apiLocation": "./api",
       "outputLocation": "dist",
       "appBuildCommand": "npm run build:vite",
       "apiBuildCommand": "npm run build",
       "run": "npm run dev",
-      "appDevserverUrl": "http://localhost:5173/",
-      "apiDevserverUrl": "http://localhost:7071/"
+      "appDevserverUrl": "http://localhost:5173/"
     }
   }
 }
