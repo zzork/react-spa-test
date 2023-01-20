@@ -20,7 +20,7 @@ export const Filter = <T,>({
   const listId = column.id + 'datalist';
 
   return (
-    <>
+    <div>
       <datalist id={listId}>
         {sortedUniqueValues.map((value) => (
           <option key={value} value={value} />
@@ -31,8 +31,9 @@ export const Filter = <T,>({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         list={listId}
-        placeholder={`Search... (${sortedUniqueValues.length})`}
+        placeholder={`Search (${sortedUniqueValues.length})`}
+        style={{ width: '6rem' }}
       />
-    </>
+    </div>
   );
 };

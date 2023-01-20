@@ -3,6 +3,7 @@ import {
   QueryClientProvider,
   QueryKey,
 } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Table } from './components';
 import './App.css';
 
@@ -24,6 +25,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => (
 const App = () => (
   <Providers>
     <Table />
+    <ReactQueryDevtools initialIsOpen={false} />
   </Providers>
 );
 

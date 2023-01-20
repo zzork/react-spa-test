@@ -8,12 +8,13 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
   getFacetedUniqueValues,
+  Header,
   useReactTable,
 } from '@tanstack/react-table';
 import { useUsers } from './useUsers';
 import { User } from './User';
-import classNames from './Table.module.css';
 import { Filter } from './Filter';
+import classNames from './Table.module.css';
 
 const columnHelper = createColumnHelper<User>();
 
@@ -100,6 +101,53 @@ const columns = [
   }),
 ];
 
+const SORT_SYMBOLS = {
+  asc: '↑',
+  desc: '↓',
+};
+
+const HeaderTitle = <T,>({
+  header,
+  children,
+}: {
+  header: Header<T, unknown>;
+  children: React.ReactNode;
+}) => {
+  const canSort = header.column.getCanSort();
+  if (!canSort) return <div>{children}</div>;
+  return (
+    <button
+      className={classNames.headerTitle}
+      onClick={header.column.getToggleSortingHandler()}
+    >
+      {children}
+    </button>
+  );
+};
+
+const TableHeader = <T,>({ header }: { header: Header<T, unknown> }) => {
+  const sortDirection = header.column.getIsSorted();
+  return (
+    <th
+      className={
+        header.isPlaceholder ? classNames.headerPlaceholder : classNames.header
+      }
+      key={header.id}
+      colSpan={header.colSpan}
+    >
+      {!header.isPlaceholder && (
+        <>
+          <HeaderTitle header={header}>
+            {flexRender(header.column.columnDef.header, header.getContext())}
+            {sortDirection && SORT_SYMBOLS[sortDirection]}
+          </HeaderTitle>
+          {header.column.getCanFilter() && <Filter column={header.column} />}
+        </>
+      )}
+    </th>
+  );
+};
+
 export const Table = () => {
   const { data } = useUsers();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -125,27 +173,7 @@ export const Table = () => {
           {tableData.getHeaderGroups().map((headerGroup) => (
             <tr className={classNames.headerRow} key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th
-                  className={
-                    header.isPlaceholder
-                      ? classNames.headerPlaceholder
-                      : classNames.header
-                  }
-                  key={header.id}
-                  colSpan={header.colSpan}
-                >
-                  {!header.isPlaceholder && (
-                    <>
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                      {header.column.getCanSort() && (
-                        <Filter column={header.column} />
-                      )}
-                    </>
-                  )}
-                </th>
+                <TableHeader key={header.id} header={header} />
               ))}
             </tr>
           ))}
