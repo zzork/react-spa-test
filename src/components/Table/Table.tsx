@@ -1,13 +1,19 @@
+import { useState } from 'react';
 import {
+  ColumnFiltersState,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
+  getFacetedRowModel,
+  getFilteredRowModel,
   getSortedRowModel,
+  getFacetedUniqueValues,
   useReactTable,
 } from '@tanstack/react-table';
 import { useUsers } from './useUsers';
 import { User } from './User';
 import classNames from './Table.module.css';
+import { Filter } from './Filter';
 
 const columnHelper = createColumnHelper<User>();
 
@@ -96,12 +102,20 @@ const columns = [
 
 export const Table = () => {
   const { data } = useUsers();
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const tableData = useReactTable({
     data: data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    onColumnFiltersChange: setColumnFilters,
+    state: {
+      columnFilters,
+    },
   });
 
   return (
@@ -120,11 +134,17 @@ export const Table = () => {
                   key={header.id}
                   colSpan={header.colSpan}
                 >
-                  {!header.isPlaceholder &&
-                    flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+                  {!header.isPlaceholder && (
+                    <>
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                      {header.column.getCanSort() && (
+                        <Filter column={header.column} />
+                      )}
+                    </>
+                  )}
                 </th>
               ))}
             </tr>
