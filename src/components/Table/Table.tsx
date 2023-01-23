@@ -1,197 +1,158 @@
-import { useState } from 'react';
 import {
-  ColumnFiltersState,
-  createColumnHelper,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
   getFilteredRowModel,
   getSortedRowModel,
   getFacetedUniqueValues,
-  Header,
+  Table,
   useReactTable,
+  getPaginationRowModel,
 } from '@tanstack/react-table';
+import {
+  Button,
+  ButtonGroup,
+  TableContainer,
+  Table as MaterialTable,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Typography,
+} from '@mui/material';
 import { useUsers } from './useUsers';
-import { User } from './User';
-import { Filter } from './Filter';
+import { columns } from './columns';
+import { Header } from './Header';
 import classNames from './Table.module.css';
 
-const columnHelper = createColumnHelper<User>();
-
-const columns = [
-  columnHelper.group({
-    header: 'Personal Info',
-    columns: [
-      columnHelper.accessor('id', {
-        header: 'ID',
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('name', {
-        header: 'Name',
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('username', {
-        header: 'Username',
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('email', {
-        header: 'Email',
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('phone', {
-        header: 'Phone',
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('website', {
-        header: 'Website',
-        cell: (info) => info.getValue(),
-      }),
-    ],
-  }),
-  columnHelper.group({
-    header: 'Address',
-    columns: [
-      columnHelper.accessor('address.street', {
-        header: 'Street',
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('address.suite', {
-        header: 'Suite',
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('address.city', {
-        header: 'City',
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('address.zipcode', {
-        header: 'Zipcode',
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.group({
-        header: 'Geo',
-        columns: [
-          columnHelper.accessor('address.geo.lat', {
-            header: 'Lat',
-            cell: (info) => info.getValue(),
-          }),
-          columnHelper.accessor('address.geo.lng', {
-            header: 'Long',
-            cell: (info) => info.getValue(),
-          }),
-        ],
-      }),
-    ],
-  }),
-  columnHelper.group({
-    header: 'Company',
-    columns: [
-      columnHelper.accessor('company.name', {
-        header: 'Name',
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('company.catchPhrase', {
-        header: 'Catch-phrase',
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('company.bs', {
-        header: 'Mission Statement',
-        cell: (info) => info.getValue(),
-      }),
-    ],
-  }),
-];
-
-const SORT_SYMBOLS = {
-  asc: '↑',
-  desc: '↓',
+const getAdjacentPages = (
+  currentPage: number,
+  range: number,
+  noOfPages: number
+) => {
+  const pages = [currentPage];
+  for (let i = 1; i <= range; i++) {
+    if (currentPage - i > 0) pages.unshift(currentPage - i);
+    if (currentPage + i <= noOfPages) pages.push(currentPage + i);
+  }
+  return pages;
 };
 
-const HeaderTitle = <T,>({
-  header,
-  children,
+const PageControls = <T,>({
+  tableModel,
+  pageRange = 2,
 }: {
-  header: Header<T, unknown>;
-  children: React.ReactNode;
+  tableModel: Table<T>;
+  pageRange?: number;
 }) => {
-  const canSort = header.column.getCanSort();
-  if (!canSort) return <div>{children}</div>;
+  const currentPage = tableModel.getState().pagination.pageIndex + 1;
+  const pageCount = tableModel.getPageCount();
   return (
-    <button
-      className={classNames.headerTitle}
-      onClick={header.column.getToggleSortingHandler()}
-    >
-      {children}
-    </button>
+    <fieldset className={classNames.pageControls}>
+      <legend aria-live="polite">
+        <Typography variant="body2">
+          Page
+          <strong>
+            {` ${currentPage} of `}
+            {tableModel.getPageCount()}
+          </strong>
+        </Typography>
+      </legend>
+      <ButtonGroup role="navigation">
+        <Button
+          onClick={() => tableModel.setPageIndex(0)}
+          disabled={!tableModel.getCanPreviousPage()}
+          aria-label="First page"
+        >
+          {'<<'}
+        </Button>
+        <Button
+          onClick={() => tableModel.previousPage()}
+          disabled={!tableModel.getCanPreviousPage()}
+          aria-label="Previous page"
+        >
+          {'<'}
+        </Button>
+        {getAdjacentPages(currentPage, pageRange, pageCount).map((pageNum) => {
+          const isCurrentPage = pageNum === currentPage;
+          return (
+            <Button
+              key={`page-${pageNum}`}
+              onClick={() => tableModel.setPageIndex(pageNum - 1)}
+              variant={isCurrentPage ? 'contained' : 'outlined'}
+              aria-label={`Page ${pageNum} ${
+                isCurrentPage ? '(Current Page)' : ''
+              }`}
+            >
+              {pageNum}
+            </Button>
+          );
+        })}
+        <Button
+          onClick={() => tableModel.nextPage()}
+          disabled={!tableModel.getCanNextPage()}
+          aria-label="Next page"
+        >
+          {'>'}
+        </Button>
+        <Button
+          onClick={() => tableModel.setPageIndex(pageCount - 1)}
+          disabled={!tableModel.getCanNextPage()}
+          aria-label="Last page"
+        >
+          {'>>'}
+        </Button>
+      </ButtonGroup>
+    </fieldset>
   );
 };
 
-const TableHeader = <T,>({ header }: { header: Header<T, unknown> }) => {
-  const sortDirection = header.column.getIsSorted();
-  return (
-    <th
-      className={
-        header.isPlaceholder ? classNames.headerPlaceholder : classNames.header
-      }
-      key={header.id}
-      colSpan={header.colSpan}
-    >
-      {!header.isPlaceholder && (
-        <>
-          <HeaderTitle header={header}>
-            {flexRender(header.column.columnDef.header, header.getContext())}
-            {sortDirection && SORT_SYMBOLS[sortDirection]}
-          </HeaderTitle>
-          {header.column.getCanFilter() && <Filter column={header.column} />}
-        </>
-      )}
-    </th>
-  );
-};
-
-export const Table = () => {
+const TableComponent = () => {
   const { data } = useUsers();
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  const tableData = useReactTable({
+  const tableModel = useReactTable({
     data: data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    onColumnFiltersChange: setColumnFilters,
-    state: {
-      columnFilters,
+    initialState: {
+      pagination: {
+        pageSize: 2,
+      },
     },
   });
 
   return (
-    <div>
-      <table className={classNames.table}>
-        <thead>
-          {tableData.getHeaderGroups().map((headerGroup) => (
-            <tr className={classNames.headerRow} key={headerGroup.id}>
+    <TableContainer>
+      <MaterialTable>
+        <TableHead>
+          {tableModel.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHeader key={header.id} header={header} />
+                <Header key={header.id} header={header} />
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </thead>
-        <tbody className={classNames.tableBody}>
-          {tableData.getRowModel().rows.map((row) => (
-            <tr className={classNames.bodyRow} key={row.id}>
+        </TableHead>
+        <TableBody>
+          {tableModel.getRowModel().rows.map((row) => (
+            <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>
+                <TableCell key={cell.id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+      </MaterialTable>
+      <PageControls tableModel={tableModel} />
+    </TableContainer>
   );
 };
 
-export default Table;
+export { TableComponent as Table };

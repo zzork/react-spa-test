@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Column } from '@tanstack/react-table';
+import { Autocomplete, TextField } from '@mui/material';
 import { useDebounce } from './useDebounce';
 
 export const Filter = <T,>({
@@ -17,23 +18,23 @@ export const Filter = <T,>({
   const sortedUniqueValues = Array.from(
     column.getFacetedUniqueValues().keys()
   ).sort();
-  const listId = column.id + 'datalist';
 
   return (
-    <div>
-      <datalist id={listId}>
-        {sortedUniqueValues.map((value) => (
-          <option key={value} value={value} />
-        ))}
-      </datalist>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        list={listId}
-        placeholder={`Search (${sortedUniqueValues.length})`}
-        style={{ width: '6rem' }}
-      />
-    </div>
+    <Autocomplete
+      freeSolo
+      inputValue={value}
+      onInputChange={(_, newValue: string) => setValue(newValue)}
+      onChange={(_, newValue: string) => {
+        setValue(newValue);
+        column.setFilterValue(newValue);
+      }}
+      options={sortedUniqueValues}
+      renderInput={(props) => (
+        <TextField
+          {...props}
+          placeholder={`Search (${sortedUniqueValues.length})`}
+        />
+      )}
+    />
   );
 };

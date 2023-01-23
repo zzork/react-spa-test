@@ -10,9 +10,14 @@
     "deploy": "swa deploy",
     "dev": "vite",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "i:clean": "rm -rf node_modules && npm i"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/icons-material": "^5.11.0",
+    "@mui/material": "^5.11.5",
     "@tanstack/react-query": "^4.22.0",
     "@tanstack/react-table": "^8.7.6",
     "axios": "^1.2.2",
