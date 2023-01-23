@@ -22,7 +22,10 @@ export const RangeFilter = <T,>({
   useDebounce({ value: filter, ms: debounce, onChange: column.setFilterValue });
   const [min, max] = column.getFacetedMinMaxValues() as [number, number];
 
-  const handleChange = (e, idx: number) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    idx: number
+  ) => {
     const newFilter: Range = [...filter];
     const newValue = Number(e.target.value);
     if (validateRange(newValue, min, max)) {
