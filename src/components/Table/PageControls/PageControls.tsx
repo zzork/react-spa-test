@@ -3,7 +3,6 @@ import {
   Button,
   ButtonGroup,
   FormControl,
-  InputLabel,
   MenuItem,
   Select,
   Typography,
@@ -39,20 +38,30 @@ export const PageControls = <T,>({
   const currentFirstItem = currentPage * itemsPerPage - itemsPerPage + 1;
   return (
     <fieldset className={classNames.pageControls}>
-      <div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom: '1rem',
+          gap: '1rem',
+        }}
+      >
         <legend aria-live="polite">
-          <Typography variant="body2" gutterBottom paragraph>
+          <Typography variant="body1">
             {`${currentFirstItem} - ${Math.min(
               currentFirstItem + itemsPerPage - 1,
               totalItems
             )} of ${totalItems}`}
           </Typography>
         </legend>
-        <FormControl sx={{ 'min-width': '5rem' }}>
-          <InputLabel id="items-per-page-label">Show {itemsPerPage}</InputLabel>
+        <FormControl>
           <Select
+            value={itemsPerPage}
             onChange={(e) => tableModel.setPageSize(Number(e.target.value))}
             labelId="items-per-page-label"
+            variant="standard"
+            autoWidth
           >
             {pageSizeOptions.map((option) => (
               <MenuItem key={option} value={option}>
