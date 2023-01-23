@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { IconButton, TableCell, Typography } from '@mui/material';
 import { ArrowUpward } from '@mui/icons-material';
-import { flexRender, Header } from '@tanstack/react-table';
-import { Filter } from '@/components/Table/Filter';
+import { Column, flexRender, Header, Table } from '@tanstack/react-table';
+import { Filter, RangeFilter } from '@/components/Table/Filter';
 import classNames from './Header.module.css';
 
 const HeaderTitle = <T,>({
@@ -53,19 +53,40 @@ const HeaderTitle = <T,>({
   );
 };
 
+const FilterComponent = <T,>({
+  column,
+  isRangeFilter,
+}: {
+  column: Column<T>;
+  isRangeFilter: boolean;
+}) =>
+  isRangeFilter ? <RangeFilter column={column} /> : <Filter column={column} />;
+
 export const HeaderComponent = <T,>({
   header,
+  tableModel,
 }: {
   header: Header<T, unknown>;
+  tableModel: Table<T>;
 }) => {
+  const { column } = header;
+  const canFilter = column.getCanFilter();
+  // @TODO: there has to be a better way to get the filter type
+  const isRangeFilter =
+    typeof tableModel
+      .getPreFilteredRowModel()
+      .flatRows[0]?.getValue(column.id) === 'number';
+
   return (
     <TableCell key={header.id} colSpan={header.colSpan}>
       {!header.isPlaceholder && (
         <>
           <HeaderTitle header={header}>
-            {flexRender(header.column.columnDef.header, header.getContext())}
+            {flexRender(column.columnDef.header, header.getContext())}
           </HeaderTitle>
-          {header.column.getCanFilter() && <Filter column={header.column} />}
+          {canFilter && (
+            <FilterComponent column={column} isRangeFilter={isRangeFilter} />
+          )}
         </>
       )}
     </TableCell>

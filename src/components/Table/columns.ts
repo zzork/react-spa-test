@@ -67,21 +67,21 @@ export const columns = [
       }),
     ],
   }),
-  columnHelper.group({
-    header: 'Company',
-    columns: [
-      columnHelper.accessor('company.name', {
-        header: 'Name',
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('company.catchPhrase', {
-        header: 'Catch-phrase',
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('company.bs', {
-        header: 'Mission Statement',
-        cell: (info) => info.getValue(),
-      }),
-    ],
-  }),
+  // columnHelper.group({
+  //   header: 'Company',
+  //   columns: [
+  //     columnHelper.accessor('company.name', {
+  //       header: 'Name',
+  //       cell: (info) => info.getValue(),
+  //     }),
+  //     columnHelper.accessor('company.catchPhrase', {
+  //       header: 'Catch-phrase',
+  //       cell: (info) => info.getValue(),
+  //     }),
+  //     columnHelper.accessor('company.bs', {
+  //       header: 'Mission Statement',
+  //       cell: (info) => info.getValue(),
+  //     }),
+  //   ],
+  // }),
 ];
