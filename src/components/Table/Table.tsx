@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   flexRender,
   getCoreRowModel,
@@ -20,10 +21,12 @@ import {
 } from '@mui/material';
 import { useUsers } from './useUsers';
 import { columns } from './columns';
+import { GlobalControls } from './GlobalControls';
 import { Header } from './Header';
 import { PageControls } from './PageControls';
 
 const TableComponent = () => {
+  const [showFilters, setShowFilters] = useState<boolean>(false);
   const { data } = useUsers();
 
   const tableModel = useReactTable({
@@ -44,23 +47,22 @@ const TableComponent = () => {
   });
 
   return (
-    <TableContainer
-      // component={({ children, ...rest }) => (
-      //   <Paper {...rest} variant="outlined">
-      //     {children}
-      //   </Paper>
-      // )}
-      component={Paper}
-    >
-      <MaterialTable>
+    <TableContainer sx={{ overflowX: 'unset' }} component={Paper}>
+      <GlobalControls
+        tableModel={tableModel}
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+      />
+      <MaterialTable stickyHeader>
         <TableHead>
           {tableModel.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
+            <TableRow key={headerGroup.id} sx={{ position: 'sticky' }}>
               {headerGroup.headers.map((header) => (
                 <Header
                   key={header.id}
                   header={header}
                   tableModel={tableModel}
+                  showFilters={showFilters}
                 />
               ))}
             </TableRow>

@@ -4,10 +4,10 @@ import { Autocomplete, TextField } from '@mui/material';
 import { useDebounce } from './useDebounce';
 import classNames from './Filter.module.css';
 
-type Range = [min: number, max: number];
+type Range = [min: number | '', max: number | ''];
 
 const validateRange = (value: number, min: number, max: number) =>
-  typeof value === 'number' && value >= min && value <= max;
+  Number.isInteger(value) && value >= min && value <= max;
 
 export const RangeFilter = <T,>({
   column,
@@ -22,13 +22,11 @@ export const RangeFilter = <T,>({
   useDebounce({ value: filter, ms: debounce, onChange: column.setFilterValue });
   const [min, max] = column.getFacetedMinMaxValues() as [number, number];
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    idx: number
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, idx: 0 | 1) => {
     const newFilter: Range = [...filter];
-    const newValue = Number(e.target.value);
-    if (validateRange(newValue, min, max)) {
+    const newValue =
+      e.target.value === '' ? e.target.value : Number(e.target.value);
+    if (typeof newValue === 'string' || validateRange(newValue, min, max)) {
       newFilter[idx] = newValue;
       setFilter(() => newFilter);
     }
@@ -42,9 +40,10 @@ export const RangeFilter = <T,>({
           handleChange(e, 0)
         }
         inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-        placeholder={`Min (${min})`}
+        label={`Min (${min})`}
         size="small"
         margin="none"
+        sx={{ minWidth: '4rem', maxWidth: '6rem' }}
       />
       <TextField
         value={filter[1]}
@@ -52,9 +51,10 @@ export const RangeFilter = <T,>({
           handleChange(e, 1)
         }
         inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-        placeholder={`Max (${max})`}
+        label={`Max (${max})`}
         size="small"
         margin="none"
+        sx={{ minWidth: '4rem', maxWidth: '6rem' }}
       />
     </fieldset>
   );
@@ -89,9 +89,10 @@ export const Filter = <T,>({
       renderInput={(props) => (
         <TextField
           {...props}
-          placeholder={`Search (${sortedUniqueValues.length})`}
+          label={`Search (${sortedUniqueValues.length})`}
           size="small"
           margin="none"
+          sx={{ minWidth: '6rem' }}
         />
       )}
     />

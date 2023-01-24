@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IconButton, TableCell, Typography } from '@mui/material';
+import { Collapse, IconButton, TableCell, Typography } from '@mui/material';
 import { ArrowUpward } from '@mui/icons-material';
 import { Column, flexRender, Header, Table } from '@tanstack/react-table';
 import { Filter, RangeFilter } from '@/components/Table/Filter';
@@ -65,12 +65,15 @@ const FilterComponent = <T,>({
 export const HeaderComponent = <T,>({
   header,
   tableModel,
+  showFilters,
+  ...props
 }: {
   header: Header<T, unknown>;
   tableModel: Table<T>;
+  showFilters: boolean;
 }) => {
   const { column } = header;
-  const canFilter = column.getCanFilter();
+  const canFilter = showFilters && column.getCanFilter();
   // @TODO: there has to be a better way to get the filter type
   const isRangeFilter =
     typeof tableModel
@@ -78,15 +81,15 @@ export const HeaderComponent = <T,>({
       .flatRows[0]?.getValue(column.id) === 'number';
 
   return (
-    <TableCell key={header.id} colSpan={header.colSpan}>
+    <TableCell {...props} key={header.id} colSpan={header.colSpan}>
       {!header.isPlaceholder && (
         <>
           <HeaderTitle header={header}>
             {flexRender(column.columnDef.header, header.getContext())}
           </HeaderTitle>
-          {canFilter && (
+          <Collapse in={canFilter}>
             <FilterComponent column={column} isRangeFilter={isRangeFilter} />
-          )}
+          </Collapse>
         </>
       )}
     </TableCell>

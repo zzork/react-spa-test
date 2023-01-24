@@ -3,6 +3,7 @@ import {
   Button,
   ButtonGroup,
   FormControl,
+  InputLabel,
   MenuItem,
   Select,
   Typography,
@@ -36,41 +37,30 @@ export const PageControls = <T,>({
   const pageCount = tableModel.getPageCount();
   const totalItems = tableModel.getFilteredRowModel().rows.length;
   const currentFirstItem = currentPage * itemsPerPage - itemsPerPage + 1;
+  const currentLastItem = Math.min(
+    currentFirstItem + itemsPerPage - 1,
+    totalItems
+  );
+  const selectLabelId = 'rows-per-page-id';
   return (
-    <fieldset className={classNames.pageControls}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginBottom: '1rem',
-          gap: '1rem',
-        }}
+    <div className={classNames.pageControls}>
+      <InputLabel disableAnimation id={selectLabelId}>
+        Rows per page:{' '}
+      </InputLabel>
+      <Select
+        labelId={selectLabelId}
+        value={itemsPerPage}
+        onChange={(e) => tableModel.setPageSize(Number(e.target.value))}
+        variant="standard"
+        autoWidth
       >
-        <legend aria-live="polite">
-          <Typography variant="body1">
-            {`${currentFirstItem} - ${Math.min(
-              currentFirstItem + itemsPerPage - 1,
-              totalItems
-            )} of ${totalItems}`}
-          </Typography>
-        </legend>
-        <FormControl>
-          <Select
-            value={itemsPerPage}
-            onChange={(e) => tableModel.setPageSize(Number(e.target.value))}
-            labelId="items-per-page-label"
-            variant="standard"
-            autoWidth
-          >
-            {pageSizeOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                Show {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </div>
+        {pageSizeOptions.map((option) => (
+          <MenuItem key={option} value={option}>
+            {option}
+          </MenuItem>
+        ))}
+      </Select>
+      <InputLabel>{`${currentFirstItem} - ${currentLastItem} of ${totalItems}`}</InputLabel>
       <ButtonGroup role="navigation">
         <Button
           onClick={() => tableModel.setPageIndex(0)}
@@ -116,6 +106,6 @@ export const PageControls = <T,>({
           {'>>'}
         </Button>
       </ButtonGroup>
-    </fieldset>
+    </div>
   );
 };

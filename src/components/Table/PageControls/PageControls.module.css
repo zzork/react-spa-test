@@ -1,4 +1,7 @@
 .pageControls {
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1rem;
+  gap: 1rem;
 }
